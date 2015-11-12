@@ -49,7 +49,7 @@
     (properties . (face font-lock-comment-face)))
   "Specs to display time fields as \"time ago\" strings.")
 
-(defvar weaver-thread-format nil
+(defvar-local weaver-thread-format nil
   "Format used to turn received data into tabulated-list entries.
 The value is a vector where each element represents a column.
     [COLUMN-1 COLUMN-2 COLUMN-3 ...]
@@ -81,13 +81,13 @@ The conversion is governed by `weaver-thread-format'."
   (weaver--mapv (lambda (f) (weaver--get-entry-in-thread thread-data f))
           weaver-thread-format))
 
-(defvar weaver--pages-so-far 0
+(defvar-local weaver--pages-so-far 0
   "Number of pages currently being displayed.
 This variable gets reset to 0 before every refresh and increased
 by one when the user requests more pages (by scrolling beyond the
 bottom).")
 
-(defvar weaver--paging-function nil
+(defvar-local weaver--paging-function nil
   "Function used to fetch the next page of threads to be displayed.
 Used by `weaver-list-mode'. This is a function, called with
 no arguments, which returns a list of threads to be displayed.
@@ -100,14 +100,14 @@ appended to the currently displayed list.
 If this is not set, it's the same as a function which always
 returns nil.")
 
-(defvar weaver--dataset nil
+(defvar-local weaver--dataset nil
   "The logical data behind the displayed list of threads.
 This dataset contains even threads that are hidden by the user,
 and thus not displayed in the list of threads.
 
 This is ignored if `weaver--refresh-function' is set.")
 
-(defvar weaver--print-function #'weaver--print-info
+(defvar-local weaver--print-function #'weaver--print-info
   "Function to convert a thread alist into a tabulated-list entry.
 This gives you fine-tuned customization of how threads are
 printed, but it's generally not necessary to configure this. You
@@ -140,18 +140,20 @@ Must be called after populating `tabulated-list-entries'."
         (setf (alist-get 'width spec)
               (if (stringp address)
                   (string-width address)
-                (apply #'max (mapcar (lambda (x) (string-width (car (elt (cadr x) .idx))))
+                (apply #'max (mapcar (lambda (x) (pcase (car (elt (cadr x) .idx))
+                                              ((and s (pred stringp)) (string-width s))
+                                              (_ 0)))
                                      tabulated-list-entries))))))
     (cons address spec)))
 
-(defvar weaver--display-function nil)
+(defvar-local weaver--display-function nil)
 
 (defun weaver--plausible-url-p (url)
   (and (stringp url)
        (not (string-match "\\`https?://api\\." url))
        (y-or-n-p (concat "Visit " url " "))))
 
-(defvar weaver--visit-function #'browse-url
+(defvar-local weaver--visit-function #'browse-url
   "Function that takes a url and visits it externally.")
 
 (defun weaver-visit-externally (thread)

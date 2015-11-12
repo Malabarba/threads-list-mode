@@ -230,7 +230,7 @@ we're not. Do the same for 3 lines from the top."
         (weaver-list-refresh 'redisplay 'no-update)
         (forward-line 1)))))
 
-(defvar weaver--list-last-refresh (current-time)
+(defvar-local weaver--list-last-refresh (current-time)
   "Time of the latest refresh.")
 
 (defun weaver-list-next (n)
