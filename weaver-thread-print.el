@@ -216,7 +216,7 @@ DATA can represent a question or an answer."
           ;; Body
           (insert "\n" weaver-thread-separator)
           (weaver--wrap-in-overlay '(face weaver-thread-content-face)
-            (insert "\n")
+            ;; (insert "\n")
             (weaver--thread-insert-markdown (replace-regexp-in-string "\r\n?" "\n" body))
             (insert "\n" weaver-thread-separator)))))))
 
@@ -452,7 +452,8 @@ Its size is bound by `weaver-thread-image-max-width' and
                ov 'display
                (append image
                        (list :width (min (window-body-width nil 'pixel)
-                                         w image-width))))))))
+                                         w image-width))))
+              (redisplay)))))
     (weaver-get-cached-url url callback)
     (overlay-put ov 'face 'default)
     ov))

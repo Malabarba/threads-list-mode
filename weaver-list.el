@@ -52,7 +52,7 @@
     ("J" weaver-list-next-far)
     ("K" weaver-list-previous-far)
     ("g" weaver-list-refresh)
-    ("v" weaver-list-visit-externally "visit")
+    ("v" weaver-visit-externally "visit")
     ;; ("m" weaver-list-mark-read "mark-read")
     )
   "List of key definitions for `weaver-list-mode'.
