@@ -24,6 +24,7 @@
 ;;; Code:
 
 (require 'url)
+(require 'subr-x)
 
 (defun weaver--mapv (f v)
   "Like `mapcar', but return a vector"
@@ -40,9 +41,19 @@
       (setq out (alist-get (pop address) out)))
     out))
 
+(defvar weaver--font-width 10)
+
+(defun weaver--calculate-font-width ()
+  (setq weaver--font-width
+        (with-selected-window (selected-window)
+          (let ((inhibit-read-only t))
+            (insert " ")
+            (prog1 (- (car (elt (posn-at-point) 2))
+                      (car (elt (posn-at-point (1- (point))) 2)))
+              (delete-char -1))))))
+
 
 ;;; Printing
-
 (defconst weaver-field-time-ago
   `((reader . ,(lambda (x) (seconds-to-string (time-to-seconds (time-since x)))))
     (right-align . t)
@@ -207,7 +218,9 @@ ignored."
 
 
 ;;; Networking
-(defun weaver--read-buffer-data ()
+(defvar weaver--url-cache (make-hash-table))
+
+(defun weaver--read-and-cache-buffer-data (url)
   "Return the buffer contents after any url headers.
 Error if url headers are absent or if they indicate something
 went wrong."
@@ -216,8 +229,10 @@ went wrong."
     (error "Page not found."))
   (if (not (search-forward "\n\n" nil t))
       (error "Headers missing; response corrupt")
-    (prog1 (buffer-substring (point) (point-max))
-      (kill-buffer (current-buffer)))))
+    (let ((out (buffer-substring (point) (point-max))))
+      (kill-buffer (current-buffer))
+      (puthash url out weaver--url-cache)
+      out)))
 
 (defun weaver-get-url (url &optional callback)
   "Fetch and return data stored online at URL.
@@ -236,7 +251,7 @@ the retrieved data."
           (when callback
             ;; @TODO: Error check in STATUS.
             (lambda (_status)
-              (funcall callback (weaver--read-buffer-data)))))
+              (funcall callback (weaver--read-and-cache-buffer-data url)))))
          (response-buffer
           (if callback (url-retrieve url callback-internal nil 'silent)
             (url-retrieve-synchronously url))))
@@ -244,7 +259,15 @@ the retrieved data."
       (if (not response-buffer)
           (error "Something went wrong in `url-retrieve-synchronously'")
         (with-current-buffer response-buffer
-          (weaver--read-buffer-data))))))
+          (weaver--read-and-cache-buffer-data url))))))
+
+(defun weaver-get-cached-url (url &optional callback)
+  "Like `weaver-get-url', but allow caching."
+  (if-let ((cache (gethash url weaver--url-cache)))
+      (if callback
+          (funcall callback cache)
+        cache)
+    (weaver-get-url url callback)))
 
 (defun weaver--shorten-url (url)
   "Shorten URL hiding anything other than the domain.
