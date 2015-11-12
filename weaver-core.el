@@ -218,7 +218,7 @@ ignored."
 
 
 ;;; Networking
-(defvar weaver--url-cache (make-hash-table))
+(defvar weaver--url-cache (make-hash-table :test #'equal))
 
 (defun weaver--read-and-cache-buffer-data (url)
   "Return the buffer contents after any url headers.
