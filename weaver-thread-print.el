@@ -193,10 +193,14 @@ This is usually a link's URL, or the content of a code block."
   'weaver-button-copy-type "Share Link"
   :supertype 'weaver-button)
 
-(defun thread--format-header (spec)
-  (apply #'propertize
-         (if (plist-member (cdr spec) 'face) spec
-           (append spec '(face weaver-thread-header)))))
+(defun thread--insert-header (spec)
+  (pcase-let ((`(,head . ,rest) spec))
+    (if (overlayp head) " ¶ "
+      (apply #'propertize head
+             (if (plist-member rest 'face) rest
+               (append rest '(face weaver-thread-header)))))
+    (when (overlayp head)
+      (move-overlay head (- (point) 3) (point) (current-buffer)))))
 
 (defun weaver--thread-print-section (data)
   "Print a section corresponding to DATA.
@@ -205,18 +209,20 @@ DATA can represent a question or an answer."
   (pcase-let ((`(,raw-data ,body ,headers) data))
     (weaver--wrap-in-overlay (list 'weaver--data-here raw-data)
       (insert "\n")
-      (insert-text-button
-       (apply #'concat (mapcar #'thread--format-header headers))
-       'weaver--thread-section 1
-       ;; 'face 'weaver-thread-title
-       :type 'weaver-section-title)
-      (weaver--wrap-in-overlay '(weaver--thread-section-content t)
-        ;; Body
-        (insert "\n" weaver-thread-separator)
-        (weaver--wrap-in-overlay '(face weaver-thread-content-face)
-          (insert "\n")
-          (weaver--thread-insert-markdown (replace-regexp-in-string "\r\n?" "\n" body))
-          (insert "\n" weaver-thread-separator))))))
+      (let ((beg (point)))
+        (mapcar #'thread--insert-header headers)
+        (make-text-button beg (point)
+                          'weaver--thread-section 1
+                          ;; 'face 'weaver-thread-title
+                          :type 'weaver-section-title))
+      (when body
+        (weaver--wrap-in-overlay '(weaver--thread-section-content t)
+          ;; Body
+          (insert "\n" weaver-thread-separator)
+          (weaver--wrap-in-overlay '(face weaver-thread-content-face)
+            (insert "\n")
+            (weaver--thread-insert-markdown (replace-regexp-in-string "\r\n?" "\n" body))
+            (insert "\n" weaver-thread-separator)))))))
 
 
 ;;;; Printing and Font-locking the content (body)
