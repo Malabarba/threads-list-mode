@@ -165,7 +165,9 @@ on the current buffer use
                                visit-function visit-address)
   "Create and display a thread buffer with the given specs."
   (with-current-buffer (get-buffer-create (format "*%s*" name))
+    (unless nodisplay (pop-to-buffer (current-buffer)))
     (weaver-thread-mode)
+    (weaver--calculate-font-width)
     (setq header-line-format (weaver--key-definitions-to-header-line
                               weaver--thread-key-definitions))
     (setq mode-name name)
@@ -189,8 +191,7 @@ on the current buffer use
     ;;              weaver--thread-closed-mode-line-string)
     (weaver-thread-refresh)
     (goto-char (point-min))
-    (weaver-thread-next-section)
-    (unless nodisplay (pop-to-buffer (current-buffer)))))
+    (weaver-thread-next-section)))
 
 (defun weaver-thread-refresh (&optional no-update)
   "Refresh currently displayed thread.

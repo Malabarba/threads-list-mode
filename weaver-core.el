@@ -64,6 +64,9 @@ The ADDRESS is a list of how to find the column's value in the
 received data, e.g.:
     (repository full_name)")
 
+(defvar weaver-thread-image-max-width 550
+  "Maximum width, in pixels, of images in the question buffer.")
+
 (defun weaver--get-entry-in-thread (alist format)
   (let* ((address (car format))
          (content (cond ((consp address) (weaver--get-in alist address))
@@ -71,9 +74,12 @@ received data, e.g.:
                         ((functionp address) (funcall address alist))))
          (spec (cdr format)))
     (let-alist (if (symbolp spec) (symbol-value spec) spec)
-      (cons (if .reader (funcall .reader content) content)
-            (if (plist-member .properties 'face) .properties
-              `(face default . ,\.properties))))))
+      (let ((weaver-thread-image-max-width
+             (if .width (* .width weaver--font-width)
+               weaver-thread-image-max-width)))
+        (cons (if .reader (funcall .reader content) content)
+              (if (plist-member .properties 'face) .properties
+                `(face default . ,\.properties)))))))
 
 (defun weaver--print-info (thread-data)
   "Convert `json-read' THREAD-DATA into tabulated-list vector.

@@ -87,11 +87,6 @@ type is not available, images won't work."
   :type 'boolean
   :group 'weaver-thread)
 
-(defcustom weaver-thread-image-max-width 550
-  "Maximum width, in pixels, of images in the question buffer."
-  :type 'integer
-  :group 'weaver-thread)
-
 
 ;;; Functions
 ;;;; Printing the general structure
@@ -195,10 +190,11 @@ This is usually a link's URL, or the content of a code block."
 
 (defun thread--insert-header (spec)
   (pcase-let ((`(,head . ,rest) spec))
-    (if (overlayp head) " ¶ "
-      (apply #'propertize head
-             (if (plist-member rest 'face) rest
-               (append rest '(face weaver-thread-header)))))
+    (insert
+     (if (overlayp head) " ¶ "
+       (apply #'propertize head
+              (if (plist-member rest 'face) rest
+                (append rest '(face weaver-thread-header))))))
     (when (overlayp head)
       (move-overlay head (- (point) 3) (point) (current-buffer)))))
 
@@ -447,6 +443,7 @@ The image will take the place of the character at POINT.
 Its size is bound by `weaver-thread-image-max-width' and
 `window-body-width'."
   (let* ((ov (make-overlay (point) (point) (current-buffer) t nil))
+         (w weaver-thread-image-max-width)
          (callback
           (lambda (data)
             (let* ((image (create-image data 'imagemagick t))
@@ -454,10 +451,9 @@ Its size is bound by `weaver-thread-image-max-width' and
               (overlay-put
                ov 'display
                (append image
-                       (list :width (min weaver-thread-image-max-width
-                                         (window-body-width nil 'pixel)
-                                         image-width))))))))
-    (weaver-get-url url callback)
+                       (list :width (min (window-body-width nil 'pixel)
+                                         w image-width))))))))
+    (weaver-get-cached-url url callback)
     (overlay-put ov 'face 'default)
     ov))
 
