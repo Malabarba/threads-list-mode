@@ -51,7 +51,7 @@ If DIRECTION is negative, move backwards instead."
 ;; To move between sections, just search for the property. The value
 ;; of the text-property is the depth of the section (1 for contents, 2
 ;; for comments).
-(defcustom weaver-thread-recenter-line 0
+(defcustom weaver-thread-recenter-line 1
   "Screen line to which we recenter after moving between sections.
 This is used as an argument to `recenter', only used if the end
 of section is outside the window.
