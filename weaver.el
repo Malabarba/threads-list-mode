@@ -48,22 +48,24 @@
         (json-array-type 'list))
     (json-read)))
 
-(defun weaver--github-pager (url-or-action)
+(defun weaver--github-action (url)
+  (paradox--github-action url
+    :max-pages 1
+    :reader #'weaver--json-reader))
+
+(defun weaver--github-pager-function (url thread)
   (lambda (&optional page)
     (require 'json)
     (if (or (not page) (= page 1))
-        (paradox--github-action url-or-action
-                                :max-pages 1
-                                :reader #'weaver--json-reader)
+        (cons thread (weaver--github-action url))
       (when paradox--github-next-page
-        (paradox--github-action paradox--github-next-page
-                                :max-pages 1
-                                :reader #'weaver--json-reader)))))
+        (weaver--github-action paradox--github-next-page)))))
 
 (defun weaver--github-display-function (thread)
   (let-alist thread
     (weaver-thread-create
      :name (format "Github %s" .subject.type)
+     ;; :title .title
      :header-fields `[((user avatar_url)
                        (reader . weaver--thread-create-image)
                        (width . 4))
@@ -74,20 +76,22 @@
      :body-address '(body)
      :visit-address '(html_url)
      ;; :display-function
-     :content-function
-     (weaver--github-pager (concat (replace-regexp-in-string "/pulls/" "/issues/" .subject.url) "/comments")))))
+     :content-function (thread-first (replace-regexp-in-string "/pulls/" "/issues/" .subject.url)
+                         (concat "/comments")
+                         (weaver--github-pager-function (weaver--github-action .subject.url))))))
 
 ;;;###autoload
 (defun weaver-github-notification ()
   "Show a thread list with your github notifications."
   (interactive)
-  (weaver-list-create :name "Github"
+  (weaver-list-create :name "Github Notifications"
                 :fields weaver--github-thread-format
                 :visit-address '(subject url)
                 :visit-function (lambda (x) (browse-url
-                                        (replace-regexp-in-string "//api\\.github.com/repos" "//github.com" x)))
+                                        (replace-regexp-in-string
+                                         "//api\\.github.com/repos" "//github.com" x)))
                 :display-function #'weaver--github-display-function
-                :paging-function (weaver--github-pager "notifications")))
+                :paging-function (weaver--github-pager-function "notifications")))
 
 (provide 'weaver)
 ;;; weaver.el ends here

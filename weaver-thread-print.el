@@ -456,6 +456,7 @@ Its size is bound by `weaver-thread-image-max-width' and
               (redisplay)))))
     (weaver-get-cached-url url callback)
     (overlay-put ov 'face 'default)
+    (overlay-put ov 'priority 1000)
     ov))
 
 (define-button-type 'weaver-button-link
