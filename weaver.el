@@ -102,5 +102,23 @@
                 :display-function #'weaver--github-display-function
                 :paging-function (weaver--github-pager-function "notifications")))
 
+(defconst weaver--github-issue-list-format
+  `[((updated_at) . ,weaver-field-time-ago)
+    ((repository full_name)
+     (properties . (face font-lock-variable-name-face)))
+    ((title))])
+
+(defun weaver-github-issues ()
+  "Show a thread list with your Github issues for a given repo."
+  (interactive)
+  (weaver-list-create :name "Github Issues"
+                :fields weaver--github-issue-list-format
+                ;; :visit-address '(subject url)
+                ;; :visit-function (lambda (x) (browse-url
+                ;;                         (replace-regexp-in-string
+                ;;                          "//api\\.github.com/repos" "//github.com" x)))
+                :display-function #'weaver--github-display-function
+                :paging-function (weaver--github-pager-function "issues")))
+
 (provide 'weaver)
 ;;; weaver.el ends here
