@@ -35,10 +35,13 @@
     (cl-callf capitalize (elt name 0))
     name))
 
-(defun weaver--get-in (alist address)
-  (let ((out alist))
+(defun weaver--get-in (alist address &optional noerror)
+  (let ((out alist)
+        (old address))
     (while (and address out)
       (setq out (alist-get (pop address) out)))
+    (unless (or out noerror)
+      (error "Address %S not in alist: %S" old alist))
     out))
 
 (defvar weaver--font-width 10)
