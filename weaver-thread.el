@@ -148,6 +148,7 @@ on the current buffer use
 \\<weaver-thread-mode-map>
 \\{weaver-thread-mode-map}"
   ;; (setq mode-line-format weaver--thread-mode-line)
+  (setq-local truncate-string-ellipsis "…")
   (set (make-local-variable 'nobreak-char-display) nil)
   ;; Determine how to close this window.
   (unless (window-parameter nil 'quit-restore)

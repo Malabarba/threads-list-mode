@@ -130,6 +130,7 @@ Adding further threads to the bottom of the list is done by:
 
 \\{weaver-list-mode-map}"
   (hl-line-mode 1)
+  (setq-local truncate-string-ellipsis "…")
   ;; (setq mode-line-format
   ;;       weaver--mode-line-format)
   (setq tabulated-list-padding 1)
