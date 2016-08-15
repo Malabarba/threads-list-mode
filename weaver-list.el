@@ -153,10 +153,9 @@ Adding further threads to the bottom of the list is done by:
     (weaver-list-mode)
     (setq mode-name name)
     (setq weaver-thread-format
-          (mapcar #'weaver--normalize-field-properties
-                  (let ((i -1))
-                    (mapcar (lambda (f) `(,(car f) (idx . ,(cl-incf i)) ,@(cdr f)))
-                            fields))))
+          (let ((i -1))
+            (mapcar (lambda (f) `(,(car f) (idx . ,(cl-incf i)) ,@(cdr f)))
+                    (mapcar #'weaver--normalize-field-properties fields))))
     (setq weaver--paging-function paging-function)
     (weaver-list-refresh)
     (when visit-function

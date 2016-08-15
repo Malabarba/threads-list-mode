@@ -157,8 +157,11 @@ change `tabulated-list-format' accordingly.")
 (defun weaver--normalize-field-properties (field)
   "Return a new spec for FIELD with proper `properties' entry.
 Must be called before populating `tabulated-list-entries'."
-  (let ((address (car field))
-        (spec (copy-alist (cdr field))))
+  (let* ((address (car field))
+         (spec (cdr field))
+         (spec (copy-alist (if (symbolp spec)
+                               (symbol-value spec)
+                             spec))))
     (let-alist spec
       (unless (plist-member .properties 'face)
         (setf (alist-get 'properties spec)

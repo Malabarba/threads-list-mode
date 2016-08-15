@@ -178,10 +178,9 @@ on the current buffer use
                                         (weaver--get-in x body-address)
                                         (weaver--print-info x))))
     (setq weaver-thread-format
-          (mapcar #'weaver--normalize-field-properties
-                  (let ((i -1))
-                    (mapcar (lambda (f) `(,(car f) (idx . ,(cl-incf i)) ,@(cdr f)))
-                            header-fields))))
+          (let ((i -1))
+            (mapcar (lambda (f) `(,(car f) (idx . ,(cl-incf i)) ,@(cdr f)))
+                    (mapcar #'weaver--normalize-field-properties header-fields))))
     (when visit-function
       (setq weaver--visit-function visit-function))
     (when visit-address
