@@ -54,19 +54,25 @@
     :max-pages 1
     :reader #'weaver--json-reader))
 
-(defun weaver--github-pager-function (url thread)
+(defun weaver--github-pager-function (url &optional thread)
   (lambda (&optional page)
     (require 'json)
     (if (or (not page) (= page 1))
-        (cons thread (weaver--github-action url))
+        (if thread
+            (cons thread (weaver--github-action url))
+          (weaver--github-action url))
       (when paradox--github-next-page
         (weaver--github-action paradox--github-next-page)))))
 
 (defun weaver--github-display-function (thread)
   (let-alist thread
     (weaver-thread-create
-     :name (format "Github %s" .subject.type)
-     ;; :title .title
+     :name (format "Github %s" (cond
+                                (.subject.type)
+                                ((and (stringp .url) (string-match "/pulls/" .url))
+                                 "Pull Request")
+                                ("issue")))
+     :title (or .title .subject.title)
      :header-fields `[((user avatar_url)
                        (reader . weaver--thread-create-image)
                        (width . 4))
@@ -77,9 +83,10 @@
      :body-address '(body)
      :visit-address '(html_url)
      ;; :display-function
-     :content-function (thread-first (replace-regexp-in-string "/pulls/" "/issues/" .subject.url)
-                         (concat "/comments")
-                         (weaver--github-pager-function (weaver--github-action .subject.url))))))
+     :content-function (let ((url (or .url .subject.url)))
+                         (thread-first (replace-regexp-in-string "/pulls/" "/issues/" url)
+                           (concat "/comments")
+                           (weaver--github-pager-function (weaver--github-action url)))))))
 
 ;;;###autoload
 (defun weaver-github-notification ()
@@ -88,9 +95,10 @@
   (weaver-list-create :name "Github Notifications"
                 :fields weaver--github-thread-format
                 :visit-address '(subject url)
-                :visit-function (lambda (x) (browse-url
-                                        (replace-regexp-in-string
-                                         "//api\\.github.com/repos" "//github.com" x)))
+                :visit-function (lambda (x)
+                                  (browse-url
+                                   (replace-regexp-in-string
+                                    "//api\\.github.com/repos" "//github.com" x)))
                 :display-function #'weaver--github-display-function
                 :paging-function (weaver--github-pager-function "notifications")))
 
