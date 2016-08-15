@@ -57,8 +57,23 @@
 
 
 ;;; Printing
+(defun weaver--time-reader (datetime)
+  "Return a nice string describing the DATETIME string.
+DATETIME is an integer (in seconds) and the return string is
+either \"x y ago\" for times in the last 7 days or something like
+\"x/y/2016\" for older times."
+  (let* ((time (date-to-time datetime))
+         (since (time-to-seconds (time-since time)))
+         (seconds-to-string '((100 " seconds" 1)
+                              (6000 " minutes" 60.0)
+                              (108000 " hours" 3600.0)
+                              (34560000 " days" 86400.0))))
+    (if (< since (* 3600 24 7))
+        (concat (seconds-to-string since) " ago")
+      (format-time-string "%x" time))))
+
 (defconst weaver-field-time-ago
-  `((reader . ,(lambda (x) (seconds-to-string (time-to-seconds (time-since x)))))
+  `((reader . weaver--time-reader)
     (right-align . t)
     (properties . (face font-lock-comment-face)))
   "Specs to display time fields as \"time ago\" strings.")
