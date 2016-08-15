@@ -103,29 +103,28 @@ The full list of variables which can be set is:
  2. `weaver--print-function'
       Change this if the data you're dealing with is not strictly a
       list of threads (see the doc for details).
- 4. `weaver--paging-function'
-      This is used to fetch further threads. If thread 3 is nil, it is
-      also used to populate the initial list.
- 5. `weaver--dataset'
-      This is only used if both 3 and 4 are nil. It can be used to
-      display a static list.
-\\<weaver-mode-map>
+ 3. `weaver--paging-function'
+      This is used to fetch further threads. It is also used to
+      populate the initial list.
+ 4. `weaver--dataset'
+      This is only used if 3 is nil. It can be used to display a
+      static list.
+\\<weaver-list-mode-map>
 
-Thread 2 is mandatory, but it also has a sane default which is
-usually enough.
+Item 2 already has a sane default which is usually enough.
 
-As long as one of 3, 4, or 5 is provided, the other two are
-entirely optional. Populating or refreshing the list of threads
-is done in the following way:
+As long as 3 or 4 is provided, the other one is entirely
+optional. Populating or refreshing the list of threads is done in
+the following way:
+
  - Set `weaver--pages-so-far' to 1.
- - Call function 2.
- - If function 2 is not given, call function 3 with argument 1.
+ - Call function 3 with `weaver--pages-so-far' as an argument.
  - If 3 is not given use the value of 4.
 
 Adding further threads to the bottom of the list is done by:
  - Increment `weaver--pages-so-far'.
  - Call function 3 with argument `weaver--pages-so-far'.
- - If it returns anything, append to the dataset and refresh the
+ - If it returns non-nil, append to the dataset and refresh the
    display; otherwise, decrement `weaver--pages-so-far' and tell
    the user there are no more pages.
 
@@ -145,9 +144,9 @@ Adding further threads to the bottom of the list is done by:
       weaver--list-key-definitions)
 
 (cl-defun weaver-list-create (&key name fields
-                                   display-function paging-function visit-function
-                                   visit-address
-                                   nodisplay)
+                             display-function paging-function visit-function
+                             visit-address
+                             nodisplay)
   "Create and display a weaver-list buffer with the given specs."
   (with-current-buffer (get-buffer-create (format "*%s*" name))
     (weaver-list-mode)
@@ -171,7 +170,7 @@ Adding further threads to the bottom of the list is done by:
           (mapcar #'weaver--normalize-field-width weaver-thread-format))
     (setq tabulated-list-format
           (weaver--mapv #'weaver--list-thread-format-to-tabulated-list-format
-                        weaver-thread-format))
+                  weaver-thread-format))
     (tabulated-list-print)
     (goto-char (point-min))
     (unless nodisplay (pop-to-buffer (current-buffer)))))
@@ -192,9 +191,7 @@ that may currently be there."
   (funcall weaver--display-function thread))
 
 (defun weaver-list-view-next (n)
-  "Move cursor down N questions and display this question.
-Displayed in `sx-question-mode--window', replacing any question
-that may currently be there."
+  "Move cursor down N questions and display the thread."
   (interactive "p")
   (weaver-list-next n)
   (weaver-list-display (tabulated-list-get-id)))

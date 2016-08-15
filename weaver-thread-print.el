@@ -29,32 +29,32 @@
 (defgroup weaver-thread nil
   "Customization group for weaver-thread."
   :prefix "weaver-thread-"
-  :tag "WEAVER Question Mode"
+  :tag "Weaver Thread Mode"
   :group 'weaver)
 
 (defgroup weaver-thread-faces '((weaver-user custom-group))
   "Customization group for the faces of `weaver-thread'.
 Some faces of this mode might be defined in the `weaver-user' group."
   :prefix "weaver-thread-"
-  :tag "WEAVER Question Mode Faces"
+  :tag "Weaver Thread Mode Faces"
   :group 'weaver-thread)
 
 
 ;;; Faces and Variables
 (defface weaver-thread-header
   '((t :inherit font-lock-variable-name-face))
-  "Face used on the question headers in the question buffer."
+  "Face used on the thread headers in the thread buffer."
   :group 'weaver-thread-faces)
 
 (defface weaver-thread-title
-  '((t :weight bold :inherit default))
-  "Face used on the question title in the question buffer."
+  '((t :weight bold :height 1.7))
+  "Face used on the thread title in the thread buffer."
   :group 'weaver-thread-faces)
 
 (defface weaver-thread-content-face
   '((((background dark)) :background "#090909")
     (((background light)) :background "#f4f4f4"))
-  "Face used on the question body in the question buffer.
+  "Face used on the thread body in the thread buffer.
 This shouldn't have a foreground, or this will interfere with
 font-locking."
   :group 'weaver-thread-faces)
@@ -69,7 +69,7 @@ font-locking."
 
 (defface weaver-thread-closed
   '((t :box 2 :inherit font-lock-warning-face))
-  "Face used for closed question header in the question buffer."
+  "Face used for closed thread header in the thread buffer."
   :group 'weaver-thread-faces)
 
 (defcustom weaver-thread-pretty-links t
@@ -92,7 +92,7 @@ type is not available, images won't work."
 ;;;; Printing the general structure
 (defconst weaver--thread-closed-mode-line-string
   '(:propertize "  [CLOSED]  " face font-lock-warning-face)
-  "String indicating closed questions in the mode-line.")
+  "String indicating closed threads in the mode-line.")
 
 (defvar-local weaver--overlays nil
   "Overlays created by weaver on this buffer.")

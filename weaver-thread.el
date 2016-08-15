@@ -145,8 +145,8 @@ Don't activate this mode directly.  Instead, to print a thread
 on the current buffer use
 `weaver--thread-erase-and-print-thread'.
 
-\\<weaver-thread>
-\\{weaver-thread}"
+\\<weaver-thread-mode-map>
+\\{weaver-thread-mode-map}"
   ;; (setq mode-line-format weaver--thread-mode-line)
   (set (make-local-variable 'nobreak-char-display) nil)
   ;; Determine how to close this window.
@@ -203,8 +203,7 @@ query the api."
   (interactive "P")
   (weaver--thread-ensure-mode)
   (let ((point (point))
-        (line (count-screen-lines
-               (window-start) (point))))
+        (line (count-screen-lines (window-start) (point))))
     (unless no-update
       (setq weaver--dataset (mapcar weaver--print-function
                               (funcall weaver--paging-function 1))))
@@ -218,7 +217,7 @@ query the api."
 (defun weaver--thread-ensure-mode ()
   "Ensures we are in thread mode, erroring otherwise."
   (unless (derived-mode-p 'weaver-thread-mode)
-    (error "Not in `weaver-thread'")))
+    (error "Not in `weaver-thread-mode'")))
 
 (provide 'weaver-thread)
 ;;; weaver-thread.el ends here
