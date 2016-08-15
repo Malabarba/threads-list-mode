@@ -211,7 +211,7 @@ DATA can represent a question or an answer."
     (weaver--wrap-in-overlay (list 'weaver--data-here raw-data)
       (insert "\n")
       (let ((beg (point)))
-        (mapcar #'thread--insert-header headers)
+        (mapc #'thread--insert-header headers)
         (make-text-button beg (point)
                           'weaver--thread-section 1
                           ;; 'face 'weaver-thread-title

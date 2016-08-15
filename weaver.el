@@ -27,6 +27,7 @@
 ;; (add-to-list 'load-path (expand-file-name "./"))
 (require 'weaver-list)
 (require 'weaver-thread)
+(require 'paradox)
 
 
 ;;; Github
