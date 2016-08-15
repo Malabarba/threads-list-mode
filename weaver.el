@@ -105,7 +105,9 @@
 (defconst weaver--github-issue-list-format
   `[((updated_at) . ,weaver-field-time-ago)
     ((repository full_name)
-     (properties . (face font-lock-variable-name-face)))
+     (properties . (face font-lock-variable-name-face))
+     (width . 20)
+     (right-align . t))
     ((title))])
 
 (defun weaver-github-issues ()
