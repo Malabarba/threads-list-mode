@@ -156,17 +156,18 @@ on the current buffer use
   ;; We call font-lock-region manually. See `weaver--thread-insert-markdown'.
   (font-lock-mode -1))
 
-;; We need this quote+eval combo because `kbd' was a macro in 24.2.
 (mapc (lambda (x) (define-key weaver-thread-mode-map (kbd (car x)) (cadr x)))
       weaver--thread-key-definitions)
 
 (cl-defun weaver-thread-create (&key name header-fields nodisplay
+                               title
                                content-function body-address
                                visit-function visit-address)
   "Create and display a thread buffer with the given specs."
   (with-current-buffer (get-buffer-create (format "*%s*" name))
     (unless nodisplay (pop-to-buffer (current-buffer)))
     (weaver-thread-mode)
+    (setq weaver--thread-title title)
     (weaver--calculate-font-width)
     (setq header-line-format (weaver--key-definitions-to-header-line
                               weaver--thread-key-definitions))

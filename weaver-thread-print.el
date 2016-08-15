@@ -97,15 +97,20 @@ type is not available, images won't work."
 (defvar-local weaver--overlays nil
   "Overlays created by weaver on this buffer.")
 
+(defvar-local weaver--thread-title nil)
+
 (defun weaver--thread-print ()
-  "Print a buffer describing QUESTION.
-QUESTION must be a data structure returned by `json-read'."
+  "Print a buffer describing the thread in `weaver--dataset'.
+It must be a data structure returned by `json-read'."
   ;; Clear the overlays
   (mapc #'delete-overlay weaver--overlays)
   (setq weaver--overlays nil)
   ;; Print everything
   (let ((inhibit-read-only t))
     (erase-buffer)
+    (when weaver--thread-title
+      (insert (propertize weaver--thread-title 'face 'weaver-thread-title)
+              "\n\n"))
     (mapc #'weaver--thread-print-section weaver--dataset)))
 ;; (insert-text-button "Write an Answer" :type 'weaver-button-answer)
 
